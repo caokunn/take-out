@@ -103,4 +103,22 @@ public class EmployeeController {
         return Result.success(pageResult);
     }
 
+    /**
+     * 启用禁用员工账号
+     * @param id
+     * @param status
+     * @return
+     */
+    @PostMapping("/status/{status}")
+    @ApiOperation("启用禁用员工账号")
+    public Result startOrStop(Long id,
+                      @PathVariable("status") Integer status){
+        log.info("员工状态操作，参数为：{},{}",id,status);
+
+        employeeService.startOrStop(id,status);
+
+        return Result.success();
+
+    }
+
 }
