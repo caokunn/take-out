@@ -1,4 +1,4 @@
-package com.sky.controller.admin;
+package com.sky.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -8,4 +8,5 @@ public interface SetmealMapper {
 
     @Select("select count(id) from setmeal where category_id = #{categoryId}")
     int countByCategoryId(Long categoryId);
+
 }
