@@ -1,0 +1,52 @@
+package com.sky.service;
+
+import com.sky.dto.CategoryDTO;
+import com.sky.dto.CategoryPageQueryDTO;
+import com.sky.entity.Category;
+import com.sky.result.PageResult;
+
+public interface CategoryService {
+
+    /**
+     * 新增分类
+     * @param categoryDTO
+     * @return
+     */
+    void save(CategoryDTO categoryDTO);
+
+    /**
+     * 删除分类
+     * @param id
+     * @return
+     */
+    void deleteById(Long id);
+
+    /**
+     * 修改分类
+     * @param categoryDTO
+     * @return
+     */
+    void update(CategoryDTO categoryDTO);
+
+    /**
+     * 分页查询分类
+     * @param categoryPageQueryDTO
+     * @return
+     */
+    PageResult pageQuery(CategoryPageQueryDTO categoryPageQueryDTO);
+
+    /**
+     * 根据类型查询分类
+     * @param type
+     * @return
+     */
+    Category getByType(Integer type);
+
+    /**
+     * 启用禁用分类
+     * @param status
+     * @param id
+     * @return
+     */
+    void startOrStop(Integer status, Long id);
+}

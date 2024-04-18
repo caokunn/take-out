@@ -71,7 +71,7 @@ public class EmployeeServiceImpl implements EmployeeService {
      * @param employeeDTO
      * @return
      */
-    public int save(EmployeeDTO employeeDTO){
+    public void save(EmployeeDTO employeeDTO){
         Employee employee = new Employee();
 
         //对象属性拷贝
@@ -92,7 +92,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setCreateUser(curId);
         employee.setUpdateUser(curId);
 
-        return employeeMapper.insert(employee);
+        employeeMapper.insert(employee);
 
     }
 
