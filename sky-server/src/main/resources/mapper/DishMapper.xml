@@ -11,7 +11,7 @@
 
     <select id="pageQuery" resultType="com.sky.vo.DishVO">
         select d.*,c.name as categoryName
-        from dish d left outer join category c on d.category_id=c.id left join dish_flavor df on d.id=df.dish_id
+        from dish d left outer join category c on d.category_id=c.id
         <where>
             <if test="name!=null and name!=''">
                 and d.name like concat('%',#{name},'%')
@@ -25,4 +25,71 @@
         </where>
         order by d.create_time desc
     </select>
+
+    <!--根据菜品ids批量删除菜品-->
+    <delete id="deleteByIds" parameterType="java.lang.Long">
+        delete from dish
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <resultMap id="dishVoMap" type="com.sky.vo.DishVO">
+        <!-- 映射 Dish 类的属性 -->
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="categoryId" column="category_id"/><!--注意！！！这里封装的categoryId是前端所必须的，因为前端是先查category表发送/category/list?type=1请求得到全部的菜品分类，然后根据这里的categoryId回显菜品分类，所以categoryId没有的话那么前端就不会回显-->
+        <result property="price" column="price"/>
+        <result property="image" column="image"/>
+        <result property="description" column="description"/>
+        <result property="status" column="status"/>
+        <result property="updateTime" column="updateTime"/>
+        <result property="categoryName" column="cname"/><!--这里不是必须的，因为前端是根据categoryId进行回显的，没有categoryName也没关系-->
+        <collection property="flavors" ofType="com.sky.entity.DishFlavor">
+            <id property="id" column="dfId"/>
+            <result property="id" column="dishId"/>
+            <result property="name" column="dfName"/>
+            <result property="value" column="dfValue"/>
+        </collection>
+    </resultMap>
+    <select id="getByIdWithFlavor" resultMap="dishVoMap">
+        select d.*,df.id dfId,df.dish_id dishId,df.name dfName,df.value dfValue,c.name cname
+        from dish d
+        left join dish_flavor df on d.id = df.dish_id
+        left join category c on d.category_id = c.id
+        where d.id = #{id}
+    </select>
+
+
+    <update id="update">
+        update dish
+        <set>
+            <if test="name!=null">
+                name = #{name},
+            </if>
+            <if test="categoryId!=null">
+                category_id = #{categoryId},
+            </if>
+            <if test="price!=null">
+                price = #{price},
+            </if>
+            <if test="image!=null">
+                image = #{image},
+            </if>
+            <if test="description!=null">
+                description = #{description},
+            </if>
+            <if test="status!=null">
+                status = #{status},
+            </if>
+            <if test="updateTime!=null">
+                update_time = #{updateTime},
+            </if>
+            <if test="updateUser!=null">
+                update_user = #{updateUser},
+            </if>
+        </set>
+            where id = #{id}
+    </update>
 </mapper>

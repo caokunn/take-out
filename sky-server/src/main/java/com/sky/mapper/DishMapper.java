@@ -15,7 +15,11 @@ import java.util.List;
 
 @Mapper
 public interface DishMapper {
-
+    /**
+     * 根据分类id查询所属该分类的菜品数量
+     * @param categoryId
+     * @return
+     */
     @Select("select count(id) from dish where category_id = #{categoryId}")
     int countByCategoryId(Long categoryId);
 
@@ -48,4 +52,20 @@ public interface DishMapper {
      */
     @Delete("delete from dish where id = #{id}")
     void deleteById(Long id);
+
+    void deleteByIds(List<Long> ids);
+
+    /**
+     * 根据id查询菜品和口味数据
+     * @param id
+     * @return
+     */
+    DishVO getByIdWithFlavor(Long id);
+
+    /**
+     * 根据id动态修改菜品
+     * @param dish
+     */
+    @AutoFill(value = OperationType.UPDATE)
+    void update(Dish dish);
 }
