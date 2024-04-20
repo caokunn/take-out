@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sky.mapper.SetmealMapper">
 
-
+    <!--修改套餐、起售停售套餐-->
     <update id="update" parameterType="com.sky.entity.Setmeal">
         update setmeal
         <set>
@@ -36,6 +36,10 @@
         where id = #{id}
     </update>
 
-
+    <!--新增套餐基本信息-->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into setmeal (category_id,name,price,status,description,image,create_time,update_time,create_user,update_user)values
+        (#{categoryId},#{name},#{price},#{status},#{description},#{image},#{createTime},#{updateTime},#{createUser},#{updateUser})
+    </insert>
 
 </mapper>

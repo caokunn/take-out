@@ -49,6 +49,11 @@ public class DishController {
         return Result.success(pageResult);
     }
 
+    /**
+     * 删除菜品
+     * @param ids
+     * @return
+     */
     @DeleteMapping
     @ApiOperation("删除菜品")
     public Result delete(@RequestParam List<Long> ids){
@@ -97,5 +102,18 @@ public class DishController {
         log.info("菜品停售起售，{},{}",id,status);
         dishService.startOrStopSell(id,status);
         return Result.success();
+    }
+
+    /**
+     * 根据分类id查询菜品
+     * @param categoryId
+     * @return
+     */
+    @GetMapping("/list")
+    @ApiOperation("根据分类id查询菜品")
+    public Result<List<DishVO>> getByCategoryId(Long categoryId){
+        log.info("根据分类id查询菜品，{}",categoryId);
+        List<DishVO> dishVOList = dishService.getByCategoryId(categoryId);
+        return Result.success(dishVOList);
     }
 }

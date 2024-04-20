@@ -92,4 +92,8 @@
         </set>
             where id = #{id}
     </update>
+
+    <select id="getByCategoryId" resultType="com.sky.vo.DishVO">
+        select * from dish where category_id = #{categoryId}
+    </select>
 </mapper>
