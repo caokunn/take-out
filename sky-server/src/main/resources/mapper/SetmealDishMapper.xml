@@ -18,5 +18,12 @@
         </foreach>
     </insert>
 
+    <!--根据套餐setmealIds批量删除该套餐下与菜品的关系-->
+    <delete id="deleteBySetmealIds" parameterType="java.lang.Long">
+        delete from setmeal_dish where setmeal_id in
+        <foreach collection="setmealIds" item="setmealId" separator="," open="(" close=")">
+            #{setmealId}
+        </foreach>
+    </delete>
 
 </mapper>
