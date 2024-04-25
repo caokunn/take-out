@@ -70,11 +70,18 @@ public interface DishMapper {
     void update(Dish dish);
 
     /**
-     * 根据分类id查询菜品
-     * @param categoryId
+     * 根据条件查询菜品
+     * @param dish
      * @return
      */
-    List<DishVO> getByCategoryId(Long categoryId);
+    List<Dish> list(Dish dish);
 
+    /**
+     * 根据套餐id查询该套餐下的菜品
+     * @param setmealId
+     * @return
+     */
     List<Dish> getbySetmealId(Long setmealId);
+
+    List<DishVO> listWithFlavor(Dish dish);
 }

@@ -204,8 +204,43 @@ public class DishServiceImpl implements DishService {
      * @return
      */
     @Override
-    public List<DishVO> getByCategoryId(Long categoryId) {
-        List<DishVO> dishVOList = dishMapper.getByCategoryId(categoryId);
+    public List<Dish> getByCategoryId(Long categoryId) {
+        Dish dish = Dish.builder()
+                .categoryId(categoryId)
+                .status(StatusConstant.ENABLE)
+                .build();
+        List<Dish> list = dishMapper.list(dish);
+        return list;
+    }
+
+    /**
+     * 根据分类id和起售状态条件查询菜品和口味
+     * @param dish
+     * @return
+     */
+    @Override
+    public List<DishVO> listWithFlavor(Dish dish) {
+        //!!!!!注意，只要是返回List<DishVO>的就说明查出了dish的口味数据，而我又没有像视频中用多个sql语句多个表中查出结果，
+        // 我用的是一个resultmap直接得到List<dishVo>，因此这里的dishMapper.listWithFlavor(dish)是我自己定义的
+
+        //先根据条件查出对应的菜品
+//        List<Dish> dishList = dishMapper.list(dish);
+
+        //视频中是将对应的菜品属性复制给dishVo对象
+//        List<DishVO> dishVOList = new ArrayList<>();
+//        for (Dish d : dishList) {
+//            DishVO dishVO = new DishVO();
+//            BeanUtils.copyProperties(d,dishVO);
+//
+//            //根据菜品id查询对应的口味数据
+//            List<DishFlavor> dishFlavors = dishFlavorMapper.getByDishId(d.getId());
+//            dishVO.setFlavors(dishFlavors);
+//            dishVOList.add(dishVO);
+//        }
+
+
+        //这里我自己写，就像public DishVO getByIdWithFlavor(Long id)方法中我也用其他方法自己写，所以省去了dishFlavorMapper.getByDishId(d.getId());方法
+        List<DishVO> dishVOList = dishMapper.listWithFlavor(dish);
         return dishVOList;
     }
 }

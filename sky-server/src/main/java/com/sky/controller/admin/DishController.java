@@ -2,6 +2,7 @@ package com.sky.controller.admin;
 
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
+import com.sky.entity.Dish;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.DishService;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
+@RestController("adminDishController")
 @RequestMapping("/admin/dish")
 @Api(tags = "菜品相关接口")
 @Slf4j
@@ -111,9 +112,9 @@ public class DishController {
      */
     @GetMapping("/list")
     @ApiOperation("根据分类id查询菜品")
-    public Result<List<DishVO>> getByCategoryId(Long categoryId){
+    public Result<List<Dish>> getByCategoryId(Long categoryId){
         log.info("根据分类id查询菜品，{}",categoryId);
-        List<DishVO> dishVOList = dishService.getByCategoryId(categoryId);
-        return Result.success(dishVOList);
+        List<Dish> list = dishService.getByCategoryId(categoryId);
+        return Result.success(list);
     }
 }

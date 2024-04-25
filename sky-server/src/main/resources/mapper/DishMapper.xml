@@ -45,7 +45,7 @@
         <result property="description" column="description"/>
         <result property="status" column="status"/>
         <result property="updateTime" column="updateTime"/>
-        <result property="categoryName" column="cname"/><!--这里不是必须的，因为前端是根据categoryId进行回显的，没有categoryName也没关系-->
+        <!--<result property="categoryName" column="cname"/>--><!--这里不是必须的，因为前端是根据categoryId进行回显的，没有categoryName也没关系-->
         <collection property="flavors" ofType="com.sky.entity.DishFlavor">
             <id property="id" column="dfId"/>
             <result property="id" column="dishId"/>
@@ -53,14 +53,34 @@
             <result property="value" column="dfValue"/>
         </collection>
     </resultMap>
+
+    <!--根据菜品id查询菜品和口味数据-->
     <select id="getByIdWithFlavor" resultMap="dishVoMap">
-        select d.*,df.id dfId,df.dish_id dishId,df.name dfName,df.value dfValue,c.name cname
+        select d.*,df.id dfId,df.dish_id dishId,df.name dfName,df.value dfValue
         from dish d
         left join dish_flavor df on d.id = df.dish_id
-        left join category c on d.category_id = c.id
-        where d.id = #{id}
+        <where>
+            <if test="id!=null">
+                and d.id = #{id}
+            </if>
+        </where>
+
     </select>
 
+    <!--根据菜品条件查询菜品和口味数据-->
+    <select id="listWithFlavor" resultMap="dishVoMap">
+        select d.*,df.id dfId,df.dish_id dishId,df.name dfName,df.value dfValue
+        from dish d
+        left join dish_flavor df on d.id = df.dish_id
+        <where>
+            <if test="categoryId!=null">
+                and d.category_id = #{categoryId}
+            </if>
+            <if test="status!=null">
+                and d.status = #{status}
+            </if>
+        </where>
+    </select>
 
     <update id="update">
         update dish
@@ -93,10 +113,24 @@
             where id = #{id}
     </update>
 
-    <select id="getByCategoryId" resultType="com.sky.vo.DishVO">
-        select * from dish where category_id = #{categoryId}
+    <!--根据条件查询菜品-->
+    <select id="list" resultType="com.sky.entity.Dish">
+        select * from dish
+        <where>
+            <if test="name != null and name!=''">
+                and name like concat('%',#{name},'%')
+            </if>
+            <if test="categoryId!=null">
+                and category_id = #{categoryId}
+            </if>
+            <if test="status!=null">
+                and status = #{status}
+            </if>
+        </where>
+        order by create_time desc
     </select>
 
+    <!--根据套餐id查询该套餐下的菜品-->
     <select id="getbySetmealId" resultType="com.sky.entity.Dish">
         select d.* from dish d left join setmeal_dish sd on d.id=sd.dish_id where sd.setmeal_id = #{id}
     </select>
