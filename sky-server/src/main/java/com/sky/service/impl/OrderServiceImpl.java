@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
+import com.sky.constant.StatusConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
@@ -21,6 +22,7 @@ import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -210,5 +212,51 @@ public class OrderServiceImpl implements OrderService {
         }
         return new PageResult(total,list);
     }
+
+    /**
+     * 查询订单详情
+     * @param id
+     * @return
+     */
+    @Override
+    public OrderVO details(Long id) {
+        Orders orders = orderMapper.getById(id);
+        List<OrderDetail> orderDetails = orderDetailMapper.getByOrderId(id);
+
+
+        OrderVO orderVO = new OrderVO();
+        BeanUtils.copyProperties(orders,orderVO);
+        orderVO.setOrderDetailList(orderDetails);
+
+        return orderVO;
+
+    }
+
+    /**
+     * 取消订单
+     * @param id
+     */
+    @Override
+    public void userCancelById(Long id) {
+        //待支付和待接单状态下，用户可直接取消订单
+        Orders orders = orderMapper.getById(id);
+        if(orders==null){
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        if(orders.getStatus()>2){
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        if(orders.getStatus().equals(Orders.TO_BE_CONFIRMED)){
+            orders.setPayStatus(Orders.REFUND);
+        }
+
+        orders.setStatus(Orders.CANCELLED);
+        orders.setCancelReason("用户取消");
+        orders.setCancelTime(LocalDateTime.now());
+        orderMapper.update(orders);
+
+    }
+
 
 }
