@@ -88,6 +88,7 @@ public class OrderServiceImpl implements OrderService {
         orders.setPhone(addressBook.getPhone());
         orders.setConsignee(addressBook.getConsignee());
         orders.setUserId(userId);
+        orders.setAddress(addressBook.getProvinceName()+addressBook.getCityName()+addressBook.getDistrictName()+addressBook.getDetail());
 
         orderMapper.insert(orders);
 
@@ -361,18 +362,75 @@ public class OrderServiceImpl implements OrderService {
         }
 
 
-        Integer payStatus = ordersDB.getPayStatus();
-//        if(payStatus==Orders.PAID){
-//        }
-
         Orders orders = new Orders();
+
+        Integer payStatus = ordersDB.getPayStatus();
+        if(payStatus==Orders.PAID){
+            orders.setPayStatus(Orders.REFUND);
+
+        }
+
         orders.setId(ordersDB.getId());
         orders.setStatus(Orders.CANCELLED);
         orders.setRejectionReason(ordersRejectionDTO.getRejectionReason());
         orders.setCancelTime(LocalDateTime.now());
-        orders.setPayStatus(Orders.REFUND);
         orderMapper.update(orders);
 
+    }
+
+    /**
+     * 取消订单
+     * @param ordersCancelDTO
+     */
+    @Override
+    public void cancel(OrdersCancelDTO ordersCancelDTO) {
+        Orders ordersDB = orderMapper.getById(ordersCancelDTO.getId());
+        Orders orders = new Orders();
+        if(ordersDB.getPayStatus()==Orders.PAID){
+            //退款
+            orders.setPayStatus(Orders.REFUND);
+        }
+        orders.setId(ordersCancelDTO.getId());
+        orders.setStatus(Orders.CANCELLED);
+        orders.setCancelReason(ordersCancelDTO.getCancelReason());
+        orders.setCancelTime(LocalDateTime.now());
+        orderMapper.update(orders);
+
+    }
+
+    /**
+     * 派送订单
+     * @param id
+     */
+    @Override
+    public void delivery(Long id) {
+        Orders ordersDB = orderMapper.getById(id);
+
+        if(ordersDB==null||!(ordersDB.getStatus()== Orders.CONFIRMED)){
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        Orders orders = Orders.builder()
+                .id(id)
+                .status(Orders.DELIVERY_IN_PROGRESS)
+                .build();
+        orderMapper.update(orders);
+    }
+
+    /**
+     * 完成订单
+     * @param id
+     */
+    @Override
+    public void complete(Long id) {
+        Orders ordersDB = orderMapper.getById(id);
+
+        if(ordersDB==null||!(ordersDB.getStatus()==Orders.DELIVERY_IN_PROGRESS)){
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        Orders orders = Orders.builder().id(ordersDB.getId()).deliveryTime(LocalDateTime.now()).status(Orders.COMPLETED).build();
+        orderMapper.update(orders);
     }
 
     private String getorOrderDishesStr(Orders orders) {
