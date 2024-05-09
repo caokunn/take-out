@@ -18,8 +18,10 @@ import com.sky.result.PageResult;
 import com.sky.service.OrderService;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.OrderPaymentVO;
+import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
@@ -287,6 +289,64 @@ public class OrderServiceImpl implements OrderService {
 
 
         shoppingCartMapper.insertBatch(shoppingCartList);
+    }
+
+    @Override
+    public PageResult conditionSearch(OrdersPageQueryDTO ordersPageQueryDTO) {
+        PageHelper.startPage(ordersPageQueryDTO.getPage(),ordersPageQueryDTO.getPageSize());
+        Page<Orders> page = orderMapper.pageQuery(ordersPageQueryDTO);
+
+
+
+        Long total = page.getTotal();
+        List<Orders> ordersList = page.getResult();
+
+
+        List<OrderVO> orderVOList = new ArrayList<>();
+        if(ordersList!=null&&ordersList.size()>0){
+            for (Orders orders : ordersList) {
+                OrderVO orderVO = new OrderVO();
+                BeanUtils.copyProperties(orders,orderVO);
+
+                String orderDishes = getorOrderDishesStr(orders);
+                orderVO.setOrderDishes(orderDishes);
+                orderVOList.add(orderVO);
+            }
+        }
+
+
+        return new PageResult(total,orderVOList);
+
+    }
+
+    /**
+     * 各个状态的订单数量统计
+     * @return
+     */
+    @Override
+    public OrderStatisticsVO statistics() {
+        Integer toBeConfirmed = orderMapper.countStatus(Orders.TO_BE_CONFIRMED);
+        Integer confirmed = orderMapper.countStatus(Orders.CONFIRMED);
+        Integer deliveryInProgress = orderMapper.countStatus(Orders.DELIVERY_IN_PROGRESS);
+
+        OrderStatisticsVO orderStatisticsVO = new OrderStatisticsVO();
+        orderStatisticsVO.setToBeConfirmed(toBeConfirmed);
+        orderStatisticsVO.setConfirmed(confirmed);
+        orderStatisticsVO.setDeliveryInProgress(deliveryInProgress);
+        return orderStatisticsVO;
+    }
+
+    private String getorOrderDishesStr(Orders orders) {
+        List<OrderDetail> orderDetails = orderDetailMapper.getByOrderId(orders.getId());
+
+        // 将每一条订单菜品信息拼接为字符串（格式：宫保鸡丁*3；）
+        List<String> orderDishList = orderDetails.stream().map(x -> {
+            String orderDish = x.getName() + "*" + x.getNumber() + ";";
+            return orderDish;
+        }).collect(Collectors.toList());
+
+        // 将该订单对应的所有菜品信息拼接在一起
+        return String.join("", orderDishList);
     }
 
 
