@@ -33,4 +33,10 @@ public interface ShoppingCartMapper {
      * @param shoppingCart
      */
     void delete(ShoppingCart shoppingCart);
+
+    /**
+     * 再来一单的功能，将原有的订单数据插入购物车中
+     * @param shoppingCartList
+     */
+    void insertBatch(List<ShoppingCart> shoppingCartList);
 }

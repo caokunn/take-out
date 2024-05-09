@@ -30,6 +30,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -256,6 +257,36 @@ public class OrderServiceImpl implements OrderService {
         orders.setCancelTime(LocalDateTime.now());
         orderMapper.update(orders);
 
+    }
+
+    /**
+     * 再来一单
+     * @param id
+     */
+    @Override
+    public void repetition(Long id) {
+
+
+
+
+        Orders ordersDB = orderMapper.getById(id);
+
+        Long userId = BaseContext.getCurrentId();
+
+
+        //再来一单就是将原订单中的商品重新加入到购物车中
+        List<OrderDetail> orderDetailsDB = orderDetailMapper.getByOrderId(ordersDB.getId());
+        List<ShoppingCart> shoppingCartList = orderDetailsDB.stream().map(x->{
+            ShoppingCart shoppingCart = new ShoppingCart();
+            BeanUtils.copyProperties(x,shoppingCart,"id");
+            shoppingCart.setUserId(userId);
+            shoppingCart.setCreateTime(LocalDateTime.now());
+            return shoppingCart;
+        }).collect(Collectors.toList());
+
+
+
+        shoppingCartMapper.insertBatch(shoppingCartList);
     }
 
 
